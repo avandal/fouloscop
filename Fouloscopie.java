@@ -1,7 +1,6 @@
 public class Fouloscopie {
 	private static int findK(int index) {
 		if (index <= 0) throw new IllegalArgumentException("> 0");
-		if (index <= 4) throw new UnsupportedOperationException("Not implemented yet");
 
 		var k = 2;
 		while (true) {
@@ -21,20 +20,38 @@ public class Fouloscopie {
 		return 2 * k * (k + 1);
 	}
 
-	private static String coords(int index) {
+	public static Point coords(int index) {
 		var k = findK(index);
+
+		if (index <= 4) {
+			switch (index) {
+				case 1 : return new Point(1,1);
+				case 2 : return new Point(1, 2);
+				case 3 : return new Point(2, 1);
+				case 4 : return new Point(2, 2);
+			}
+		}
 		var l = left(k);
 		var r = right(k);
 
 		var diff = r - l;
 		int half = r - diff / 2;
-		int quarter = half / 2;
+		int quarter = l + diff / 4;
 
 		if (index <= half) {
-			return (index < quarter ? 2 * k - 1 : 2 * k) + "," + (half - index);
+			var col = index % k;
+			var x = index <= quarter ? 2 * k - 1 : 2 * k;
+			var y = col == 0 ? k : col;
+			return new Point(x,y);
 		} else {
-			return (index - half) + "," + (k + 1);
+			return new Point(index - half, k + 1);
 		}
+	}
+
+	public static int index(Point coords) {
+		System.out.println(coords);
+
+		return 0;
 	}
 
 	public static void main(String[] args) {
@@ -49,8 +66,11 @@ public class Fouloscopie {
 //			e.printStackTrace();
 //		}
 
-		for (int i = 5; i <= 24; i++) {
+		for (int i = 1; i <= 60; i++) {
 			System.out.println("[" + i + "] - " + coords(i));
 		}
+
+		var index = 11;
+		System.out.println(index(coords(index)) + " - expected: " + index);
 	}
 }

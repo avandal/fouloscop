@@ -5,8 +5,19 @@ public final class Point {
     private final int y;
 
     public Point(int x, int y) {
+        if (x <= 0 || y <= 0) {
+            throw new IllegalArgumentException("Negative coords");
+        }
         this.x = x;
         this.y = y;
+    }
+
+    public boolean inside(Point limit) {
+        return x <= limit.x && y <= limit.y;
+    }
+
+    public int product() {
+        return x * y;
     }
 
     public int x() {

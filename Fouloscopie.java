@@ -1,4 +1,31 @@
+import java.util.stream.IntStream;
+
 public class Fouloscopie {
+
+	// == ======== ==
+	// = UTILITAIRE =
+	// == ======== ==
+
+	private static Point kCoords(int k) {
+		return new Point(2 * k, k + 1);
+	}
+
+	private static int left(int k) {
+		return 2 * (k-1) * k;
+	}
+
+	private static int right(int k) {
+		return 2 * k * (k + 1);
+	}
+
+	private static boolean pointBetween(Point coords, Point previous, Point limit) {
+		return !coords.inside(previous) && coords.inside(limit);
+	}
+
+	// == ==== ==
+	// = COORDS =
+	// == ==== ==
+
 	private static int findK(int index) {
 		if (index <= 0) throw new IllegalArgumentException("> 0");
 
@@ -10,14 +37,6 @@ public class Fouloscopie {
 
 			k++;
 		}
-	}
-
-	private static int left(int k) {
-		return 2 * (k-1) * k;
-	}
-
-	private static int right(int k) {
-		return 2 * k * (k + 1);
 	}
 
 	public static Point coords(int index) {
@@ -48,10 +67,71 @@ public class Fouloscopie {
 		}
 	}
 
-	public static int index(Point coords) {
-		System.out.println(coords);
+	// == === ==
+	// = INDEX =
+	// == === ==
 
-		return 0;
+	private static int lessThan2(Point coords) {
+		switch (coords.x()) {
+			case 1:
+				switch (coords.y()) {
+					case 1:
+						return 1;
+					case 2:
+						return 2;
+				}
+			case 2:
+				switch (coords.y()) {
+					case 1:
+						return 3;
+					case 2:
+						return 4;
+				}
+		}
+		throw new UnsupportedOperationException("Never reached");
+	}
+
+	private static int findK(Point coords) {
+		var k = 2;
+		var limit = kCoords(k-1);
+		Point previous;
+
+		while (true) {
+			previous = limit;
+			limit = kCoords(k);
+			if (pointBetween(coords, previous, limit)) {
+				return k;
+			}
+			k++;
+		}
+	}
+
+	private static int index(Point coords, Point previous, Point limit) {
+		var prevAcc = previous.product();
+		var limitAcc = limit.product();
+		var diff = limitAcc - prevAcc;
+		var half = diff / 2;
+		var quarter = half / 2;
+
+		if (coords.y() == limit.y()) {
+			return prevAcc + half + coords.x();
+		} else {
+			if (coords.x() == limit.x() - 1) {
+				return prevAcc + coords.y();
+			} else {
+				return prevAcc + quarter + coords.y();
+			}
+		}
+	}
+
+	public static int index(Point coords) {
+		if (coords.x() <= 2 && coords.y() <= 2) {
+			return lessThan2(coords);
+		}
+
+		var k = findK(coords);
+
+		return index(coords, kCoords(k-1), kCoords(k));
 	}
 
 	public static void main(String[] args) {
@@ -66,11 +146,6 @@ public class Fouloscopie {
 //			e.printStackTrace();
 //		}
 
-		for (int i = 1; i <= 60; i++) {
-			System.out.println("[" + i + "] - " + coords(i));
-		}
-
-		var index = 11;
-		System.out.println(index(coords(index)) + " - expected: " + index);
+		System.out.println(IntStream.range(1, 1000).anyMatch(i -> index(coords(i)) != i));
 	}
 }

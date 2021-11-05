@@ -5,7 +5,7 @@ public final class Point {
     private final int y;
 
     public Point(int x, int y) {
-        if (x <= 0 || y <= 0) {
+        if (x < 0 || y < 0) {
             throw new IllegalArgumentException("Negative coords");
         }
         this.x = x;

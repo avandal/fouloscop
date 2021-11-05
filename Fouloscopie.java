@@ -1,3 +1,5 @@
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class Fouloscopie {
@@ -29,7 +31,7 @@ public class Fouloscopie {
 	private static int findK(int index) {
 		if (index <= 0) throw new IllegalArgumentException("> 0");
 
-		var k = 2;
+		var k = 1;
 		while (true) {
 			if (left(k) < index && index <= right(k)) {
 				return k;
@@ -42,14 +44,6 @@ public class Fouloscopie {
 	public static Point coords(int index) {
 		var k = findK(index);
 
-		if (index <= 4) {
-			switch (index) {
-				case 1 : return new Point(1,1);
-				case 2 : return new Point(1, 2);
-				case 3 : return new Point(2, 1);
-				case 4 : return new Point(2, 2);
-			}
-		}
 		var l = left(k);
 		var r = right(k);
 
@@ -71,28 +65,8 @@ public class Fouloscopie {
 	// = INDEX =
 	// == === ==
 
-	private static int lessThan2(Point coords) {
-		switch (coords.x()) {
-			case 1:
-				switch (coords.y()) {
-					case 1:
-						return 1;
-					case 2:
-						return 2;
-				}
-			case 2:
-				switch (coords.y()) {
-					case 1:
-						return 3;
-					case 2:
-						return 4;
-				}
-		}
-		throw new UnsupportedOperationException("Never reached");
-	}
-
 	private static int findK(Point coords) {
-		var k = 2;
+		var k = 1;
 		var limit = kCoords(k-1);
 		Point previous;
 
@@ -113,39 +87,24 @@ public class Fouloscopie {
 		var half = diff / 2;
 		var quarter = half / 2;
 
-		if (coords.y() == limit.y()) {
-			return prevAcc + half + coords.x();
-		} else {
-			if (coords.x() == limit.x() - 1) {
-				return prevAcc + coords.y();
-			} else {
-				return prevAcc + quarter + coords.y();
-			}
-		}
+		return coords.y() == limit.y()
+				? prevAcc + half + coords.x()
+			: coords.x() == limit.x() - 1
+				? prevAcc + coords.y()
+				: prevAcc + quarter + coords.y();
 	}
 
 	public static int index(Point coords) {
-		if (coords.x() <= 2 && coords.y() <= 2) {
-			return lessThan2(coords);
-		}
-
 		var k = findK(coords);
-
 		return index(coords, kCoords(k-1), kCoords(k));
 	}
 
 	public static void main(String[] args) {
-		//SpringApplication.run(FouloscopieApplication.class, args);
-
-//		try {
-//			URL url_flag = new URL("https://api-flag.fouloscopie.com/flag");
-//			URL url_user = new URL("https://admin.fouloscopie.com/users/"); // Add user_id
-//
-//			String my_id = "90315f81-70ae-494f-b6ec-650631e28f3a";
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-
-		System.out.println(IntStream.range(1, 1000).anyMatch(i -> index(coords(i)) != i));
+		IntStream.range(1, 100)
+				.boxed()
+				.map(Fouloscopie::coords)
+				.peek(System.out::println)
+				.map(Fouloscopie::index)
+				.forEach(System.out::println);
 	}
 }
